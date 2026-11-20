@@ -7,9 +7,45 @@ description: Usa esta skill cuando Daniel pida organizar, ordenar, limpiar, dedu
 
 ## Paso 0: revisa qué puede hacer el conector
 Antes de prometer cualquier acción, revisa qué herramientas de Spotify están disponibles en esta sesión.
-- Si no puedes leer las canciones de una playlist, no inventes su contenido. Pide a Daniel que la exporte a CSV (por ejemplo con Exportify) y trabaja con ese archivo.
-- Si no puedes modificar una playlist, entrega la lista final para que la cree o la edite manualmente en Spotify.
+- Lo verificado en noviembre de 2026: el conector puede **buscar** (incluye las playlists de Daniel), **crear playlists nuevas** desde una descripción (requiere Premium) y **guardar o quitar** elementos de la biblioteca. **No puede** leer las canciones de una playlist existente ni agregar, quitar o reordenar sus canciones.
+- Usa la búsqueda para ubicar la playlist: el resultado trae nombre, dueño, URI y `can_edit_items` (si Daniel puede editarla). No trae las canciones.
+- Si no puedes leer las canciones de una playlist, no inventes su contenido. Pide a Daniel que la exporte a CSV con Exportify (ver abajo) y trabaja con ese archivo.
+- Si no puedes modificar una playlist, entrega la lista final para que la edite en Spotify, u ofrece crear una playlist nueva con el conector (aclara que el conector elige las canciones desde una descripción y puede no respetar tu lista exacta).
 - Dile siempre qué puedes y qué no puedes hacer antes de empezar.
+
+## Leer un CSV de Exportify
+Exportify es una web gratuita, sin instalación: https://exportify.net. Daniel entra, conecta su cuenta de Spotify, elige la playlist y descarga el CSV.
+
+Columnas que trae el CSV:
+`Track URI, ISRC, Track Name, Album Name, Artist Name(s), Release Date, Duration (ms), Popularity, Explicit, Added By, Added At, Genres, Record Label, Danceability, Energy, Key, Loudness, Mode, Speechiness, Acousticness, Instrumentalness, Liveness, Valence, Tempo, Time Signature`
+
+Reglas al leerlo:
+- Lee el archivo completo con código y reporta cuántas filas tiene antes de proponer nada.
+- **Columnas vacías:** las de audio (Energy, Tempo, Key, etc.) pueden venir vacías, porque Spotify restringió esos datos. Si vienen vacías, dilo y no las estimes sin marcarlo como estimación.
+- **Duplicados:** primero por `Track URI`; después por `ISRC` (misma grabación en otro álbum o remaster). Propón cuál conservar.
+- **Duración:** convierte `Duration (ms)` a minutos:segundos.
+- **BPM:** `Tempo` es el BPM. Redondéalo a entero.
+- **Energía:** `Energy` va de 0 a 1. Multiplícalo por 10 para usar la escala 1-10 de la skill `djing-setlist`.
+- **Género:** usa la columna `Genres`. Si está vacía, aplica las reglas de clasificación por género de abajo o marca "sin clasificar".
+- **Tonalidad a Camelot:** `Key` es la nota (0 = C … 11 = B; -1 = sin detectar) y `Mode` es 1 = mayor, 0 = menor. Convierte así:
+
+| Key | Nota | Mayor (Mode 1) | Menor (Mode 0) |
+|---|---|---|---|
+| 0 | C | 8B | 5A |
+| 1 | C#/Db | 3B | 12A |
+| 2 | D | 10B | 7A |
+| 3 | D#/Eb | 5B | 2A |
+| 4 | E | 12B | 9A |
+| 5 | F | 7B | 4A |
+| 6 | F#/Gb | 2B | 11A |
+| 7 | G | 9B | 6A |
+| 8 | G#/Ab | 4B | 1A |
+| 9 | A | 11B | 8A |
+| 10 | A#/Bb | 6B | 3A |
+| 11 | B | 1B | 10A |
+
+- Para un set de DJ, prioriza las keys de Rekordbox si Daniel las tiene; las de Spotify son una referencia.
+- Al terminar, entrega la lista nueva también como CSV con `Track URI`, para que Daniel la importe o la reconstruya en Spotify.
 
 ## Antes de tocar nada
 1. Identifica la playlist objetivo por nombre exacto. Si hay varias parecidas, pregunta cuál.

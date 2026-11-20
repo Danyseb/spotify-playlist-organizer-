@@ -8,4 +8,4 @@ Skill para Claude que organiza playlists de Spotify por género, mood, energía,
 
 ## Notas
 - El conector de Spotify solo permite buscar, crear playlists nuevas (Premium) y guardar o quitar elementos de la biblioteca. No puede leer ni editar el contenido de una playlist existente.
-- Para leer una playlist, exporta su contenido a CSV con Exportify y sube el archivo.
+- Para leer una playlist, expórtala a CSV con [Exportify](https://exportify.net) (web gratuita, sin instalación) y sube el archivo.
